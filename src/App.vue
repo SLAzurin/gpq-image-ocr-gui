@@ -3,22 +3,23 @@ import { ref } from "vue";
 import OCR from "./components/OCR.vue";
 import SetupGPQ from "./components/SetupGPQ.vue";
 
-const isReady = ref<boolean>(false);
-const statusMsg = ref("");
-const onReady = (status?: string) => {
-  if (status) {
-    statusMsg.value = status;
-    return;
-  }
-  isReady.value = true;
-  statusMsg.value = "";
-};
+// const isReady = ref<boolean>(false);
+// const statusMsg = ref("");
+// const onReady = (status?: string) => {
+//   if (status) {
+//     statusMsg.value = status;
+//     return;
+//   }
+//   isReady.value = true;
+//   statusMsg.value = "";
+// };
 </script>
 
 <template>
-  <SetupGPQ v-if="!isReady" @ready="onReady" />
+  <!--<SetupGPQ v-if="!isReady" @ready="onReady" />
   <OCR v-else />
-  <div v-if="statusMsg !== ''">{{ statusMsg }}</div>
+  <div v-if="statusMsg !== ''">{{ statusMsg }}</div>-->
+  <OCR />
 </template>
 
 <style>

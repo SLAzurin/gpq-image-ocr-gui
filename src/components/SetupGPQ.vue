@@ -5,17 +5,27 @@ import * as path from "node:path";
 import * as child_process from "node:child_process";
 import axios from "axios";
 
-const emit = defineEmits(["ready"]);
+const emit = defineEmits<{
+  ready: [] | [string];
+}>();
 
 onMounted(() => {
+  emit("ready", "Checking for gpq-image-ocr updates, might take a while...");
   (async () => {
     const gpqToolVersion = localStorage.getItem("GPQ_TOOL_VERSION");
     const gpqToolLastUpdated = new Date(
       localStorage.getItem("GPQ_TOOL_LAST_UPDATED") ?? ""
     );
 
-    const needUpdate =
+    let needUpdate =
       gpqToolLastUpdated < new Date(Date.now() - 1000 * 60 * 60 * 24 * 7);
+    if (!needUpdate)
+      needUpdate = !(
+        !!gpqToolVersion &&
+        fs.existsSync(
+          process.cwd() + path.sep + gpqToolVersion + path.sep + "gpq.exe"
+        )
+      );
 
     if (!needUpdate) return emit("ready");
     try {
@@ -41,7 +51,10 @@ onMounted(() => {
         .substring(0, zipName.lastIndexOf("."))
         .replaceAll("-nightly", "");
 
-      if (fName === gpqToolVersion) {
+      if (
+        fName === gpqToolVersion &&
+        fs.existsSync(process.cwd() + path.sep + fName + path.sep + "gpq.exe")
+      ) {
         localStorage.setItem("GPQ_TOOL_LAST_UPDATED", new Date().toJSON());
         return emit("ready");
       }

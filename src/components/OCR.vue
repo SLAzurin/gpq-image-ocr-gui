@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import * as child_process from "node:child_process";
+import * as path from "node:path";
+import * as stream from "node:stream";
 
 defineProps();
 
@@ -19,8 +22,50 @@ const statusType = ref<"alert-success" | "alert-error" | "alert-warning" | "">(
 const processing = ref(false);
 
 const processImages = async (base64image: string) => {
-  console.log("processing image", base64image);
-  // TODO spawn python process.
+  processing.value = true;
+  // const fName = localStorage.getItem("GPQ_TOOL_VERSION");
+  const fName = "gpq-36d597dde23b8b215fbf0137235a98a30a4e3a6e";
+  console.log("spawning");
+
+  const stdinStream = new stream.Readable();
+  stdinStream.push(
+    JSON.stringify({
+      members: members.value,
+      base64image: `${base64image.substring(
+        base64image.indexOf("base64,") + 7
+      )}`,
+    })
+  ); // Add data to the internal queue for users of the stream to consume
+  stdinStream.push(null); // Signals the end of the stream (EOF)
+
+  const c = child_process.spawn(".\\gpq.exe", ["--subprocess=true"], {
+    cwd: process.cwd() + path.sep + fName,
+    shell: "powershell",
+  });
+  c.stdin.setDefaultEncoding("utf-8");
+  stdinStream.pipe(c.stdin);
+  let stdout = "";
+  c.stdout.on("data", (data) => {
+    stdout += data.toString("utf-8");
+  });
+
+  let stderr = "";
+  c.stderr.on("data", (data) => {
+    stderr += data;
+  });
+
+  c.on("exit", (exitCode) => {
+    processing.value = false;
+    if (exitCode === 0) {
+      console.log(stdout);
+      const o = JSON.parse(stdout);
+      Object.entries<number>(o).forEach(([k, v]) => {
+        results.value[k] = v;
+      });
+    } else {
+      console.log(stdout, stderr);
+    }
+  });
 };
 
 const pasteContent = (e: ClipboardEvent) => {
