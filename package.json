@@ -13,8 +13,9 @@
   "author": "SLAzurin",
   "license": "MIT",
   "dependencies": {
+    "@highlightjs/vue-plugin": "^2.1.0",
     "axios": "^1.6.7",
-    "tesseract.js": "^5.0.4"
+    "highlight.js": "^11.9.0"
   },
   "debug": {
     "env": {

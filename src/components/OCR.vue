@@ -3,6 +3,8 @@ import { ref } from "vue";
 import * as child_process from "node:child_process";
 import * as path from "node:path";
 import * as stream from "node:stream";
+import "highlight.js/lib/common";
+import hljsVuePlugin from "@highlightjs/vue-plugin";
 
 defineProps();
 
@@ -144,7 +146,10 @@ ${members.length} member(s)`"
         <button @click="copyResultsToClipboard">
           Copy results to clipboard
         </button>
-        <pre>{{ JSON.stringify(results, null, 4) }}</pre>
+        <hljsVuePlugin.component
+          language="json"
+          :code="JSON.stringify(results, null, 4)"
+        />
       </div>
     </div>
   </div>
@@ -211,6 +216,13 @@ ${members.length} member(s)`"
 </template>
 
 <style scoped>
+pre {
+  display: block;
+  white-space: pre-wrap;
+  word-break: keep-all;
+  text-align: left;
+}
+
 ::placeholder {
   padding: 1rem;
 }
