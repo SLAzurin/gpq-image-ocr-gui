@@ -24,7 +24,7 @@ const processing = ref(false);
 const processImages = async (base64image: string) => {
   processing.value = true;
   // const fName = localStorage.getItem("GPQ_TOOL_VERSION");
-  const fName = "gpq-36d597dde23b8b215fbf0137235a98a30a4e3a6e";
+  const fName = "gpq";
   console.log("spawning");
 
   const stdinStream = new stream.Readable();

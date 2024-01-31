@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from "vue";
+// import { ref } from "vue";
 import OCR from "./components/OCR.vue";
-import SetupGPQ from "./components/SetupGPQ.vue";
+// import SetupGPQ from "./components/SetupGPQ.vue";
 
 // const isReady = ref<boolean>(false);
 // const statusMsg = ref("");
