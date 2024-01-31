@@ -9,3 +9,4 @@ RELEASE_BODY
 node_modules
 dist-electron
 release
+gpq-*

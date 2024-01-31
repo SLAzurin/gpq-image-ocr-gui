@@ -4,19 +4,21 @@ import OCR from "./components/OCR.vue";
 import SetupGPQ from "./components/SetupGPQ.vue";
 
 const isReady = ref<boolean>(false);
-const errMsg = ref("");
-const onReady = (err?: string) => {
-  if (err) {
-    errMsg.value = err;
+const statusMsg = ref("");
+const onReady = (status?: string) => {
+  if (status) {
+    statusMsg.value = status;
+    return;
   }
   isReady.value = true;
+  statusMsg.value = "";
 };
 </script>
 
 <template>
   <SetupGPQ v-if="!isReady" @ready="onReady" />
   <OCR v-else />
-  <div v-if="errMsg !== ''">{{ errMsg }}</div>
+  <div v-if="statusMsg !== ''">{{ statusMsg }}</div>
 </template>
 
 <style>

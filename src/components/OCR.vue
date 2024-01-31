@@ -43,6 +43,7 @@ const pasteContent = (e: ClipboardEvent) => {
         const m: string[] = JSON.parse(v);
         members.value = m;
         localStorage.setItem("members", JSON.stringify(m));
+        results.value = {};
         statusStr.value = `Successfully imported ${m.length} member(s)`;
         statusType.value = "alert-success";
       } catch (e: unknown) {
