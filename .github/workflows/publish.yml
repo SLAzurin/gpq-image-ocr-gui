@@ -25,6 +25,8 @@ jobs:
         id: check-gpq-cli-build
         uses: actions/cache/restore@v4
         with:
+          enableCrossOsArchive: true
+          fail-on-cache-miss: false
           lookup-only: true
           key: ${{ runner.os }}-gpq-cli-${{ env.GPQ_CLI_VERSION }}
           path: ./gpq
