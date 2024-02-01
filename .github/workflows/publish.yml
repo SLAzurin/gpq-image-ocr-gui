@@ -10,12 +10,32 @@ permissions:
 env:
   GPQ_CLI_VERSION: nightly-6fb97dc1de794ca8689068ee83c11f2c4087f319
   NODE_VERSION: "20"
+
 jobs:
-  build-gpq-cli:
+  check-gpq-cli:
+    outputs:
+      cache-hit: ${{ steps.check-gpq-cli-build.outputs.cache-hit }}
     defaults:
       run:
         shell: pwsh
     runs-on: windows-latest
+
+    steps:
+      - name: Check gpq cli build
+        id: check-gpq-cli-build
+        uses: actions/cache@v4
+        with:
+          lookup-only: true
+          key: ${{ runner.os }}-gpq-cli-${{ env.GPQ_CLI_VERSION }}
+          path: ./gpq
+
+  build-gpq-cli:
+    if: needs.check-gpq-cli.outputs.cache-hit == false
+    defaults:
+      run:
+        shell: pwsh
+    runs-on: windows-latest
+    needs: check-gpq-cli
 
     steps:
       - uses: actions/checkout@v4
@@ -36,12 +56,13 @@ jobs:
       - name: Build app
         run: |
           pyinstaller gpq.py
+          Move-Item dist/gpq .
       - name: Cache gpq cli
-        uses: actions/cache@v4
+        uses: actions/cache/save@v4
         with:
           enableCrossOsArchive: true
-          path: ./dist/gpq
-          key: ${{ runner.os }}-gpq-cli-${{ github.run_number }}
+          path: ./gpq
+          key: ${{ runner.os }}-gpq-cli-${{ env.GPQ_CLI_VERSION }}
 
   build-gpq-ui:
     needs:
@@ -54,15 +75,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Cache gpq cli
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           enableCrossOsArchive: true
           fail-on-cache-miss: true
           path: ./gpq
-          key: ${{ runner.os }}-gpq-cli-${{ github.run_number }}
-          restore-keys: |
-            ${{ runner.os }}-gpq-cli-${{ github.run_number }}
-            ${{ runner.os }}-gpq-cli-
+          key: ${{ runner.os }}-gpq-cli-${{ env.GPQ_CLI_VERSION }}
       - name: Verify gpq cli
         run: if (![System.IO.File]::Exists('gpq/gpq.exe')) { exit 1; }
       - uses: pnpm/action-setup@v2
