@@ -2,7 +2,9 @@ name: Publish GPQ Image OCR GUI
 
 on:
   push:
-    branches: ["master"]
+    branches:
+      - "master"
+      - "*"
 
 permissions:
   contents: write
@@ -107,7 +109,7 @@ jobs:
       - name: Write Release Body
         run: iex "echo `"${{ github.event.head_commit.message }}`" | Tee-Object RELEASE_BODY"
       - name: Release
-        if: ${{ !env.ACT }}
+        if: ${{ !env.ACT && github.ref_name == 'master' }}
         uses: softprops/action-gh-release@v1
         with:
           name: Release gpq-image-ocr-gui nightly-${{ github.sha }}
