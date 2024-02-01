@@ -23,7 +23,7 @@ jobs:
     steps:
       - name: Check gpq cli build
         id: check-gpq-cli-build
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           lookup-only: true
           key: ${{ runner.os }}-gpq-cli-${{ env.GPQ_CLI_VERSION }}
