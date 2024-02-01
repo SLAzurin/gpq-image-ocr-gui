@@ -25,7 +25,6 @@ jobs:
         id: check-gpq-cli-build
         uses: actions/cache/restore@v4
         with:
-          enableCrossOsArchive: true
           fail-on-cache-miss: false
           lookup-only: true
           key: ${{ runner.os }}-gpq-cli-${{ env.GPQ_CLI_VERSION }}
@@ -62,7 +61,6 @@ jobs:
       - name: Cache gpq cli
         uses: actions/cache/save@v4
         with:
-          enableCrossOsArchive: true
           path: ./gpq
           key: ${{ runner.os }}-gpq-cli-${{ env.GPQ_CLI_VERSION }}
 
@@ -80,7 +78,6 @@ jobs:
       - name: Cache gpq cli
         uses: actions/cache/restore@v4
         with:
-          enableCrossOsArchive: true
           fail-on-cache-miss: true
           path: ./gpq
           key: ${{ runner.os }}-gpq-cli-${{ env.GPQ_CLI_VERSION }}
@@ -94,8 +91,17 @@ jobs:
           cache-dependency-path: "pnpm-lock.yaml"
       - name: Install dependencies
         run: |
-          pnpm i
+          pnpm i --frozen-lockfile
+      - name: Restore electron cache
+        uses: actions/cache/restore@v4
+        with:
+          fail-on-cache-miss: false
+          path: ./.cache
+          key: ${{ runner.os }}-gpq-cli-electron-cache-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Build
+        env:
+          ELECTRON_CACHE: ./.cache/electron
+          ELECTRON_BUILDER_CACHE: ./.cache/electron-builder
         run: |
           pnpm run build
       - name: Write Release Body
