@@ -1,4 +1,4 @@
-name: Python application
+name: Publish GPQ Image OCR GUI
 
 on:
   push:
@@ -58,7 +58,7 @@ jobs:
           key: ${{ runner.os }}-gpq-cli-${{ github.run_number }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: ".nvmrc"
+          node-version: "20.11"
       - name: Install dependencies
         run: |
           npm i -g pnpm
