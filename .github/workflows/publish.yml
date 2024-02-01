@@ -9,7 +9,8 @@ permissions:
 
 env:
   GPQ_CLI_VERSION: nightly-6fb97dc1de794ca8689068ee83c11f2c4087f319
-
+  NODE_VERSION: "20"
+  PNPM_VERSION: "8.15.1"
 jobs:
   build-gpq-cli:
     defaults:
@@ -57,12 +58,14 @@ jobs:
         uses: actions/cache@v4
         with:
           enableCrossOsArchive: true
-          fail-on-cache-miss: false
+          fail-on-cache-miss: true
           path: ./gpq
           key: ${{ runner.os }}-gpq-cli-${{ github.run_number }}
+      - name: Install pnpm
+        run: iwr https://get.pnpm.io/install.ps1 -useb | iex
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "${{ env.NODE_VERSION }}"
           cache: "pnpm"
           cache-dependency-path: "pnpm-lock.yaml"
       - name: Install dependencies
