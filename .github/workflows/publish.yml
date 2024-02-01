@@ -61,6 +61,9 @@ jobs:
           fail-on-cache-miss: true
           path: ./gpq
           key: ${{ runner.os }}-gpq-cli-${{ github.run_number }}
+          restore-keys: |
+            ${{ runner.os }}-gpq-cli-${{ github.run_number }}
+            ${{ runner.os }}-gpq-cli-
       - name: Install pnpm
         run: iwr https://get.pnpm.io/install.ps1 -useb | iex
       - uses: actions/setup-node@v4
