@@ -1,0 +1,83 @@
+name: Python application
+
+on:
+  push:
+    branches: ["master"]
+
+permissions:
+  contents: write
+
+env:
+  GPQ_CLI_VERSION: nightly-6fb97dc1de794ca8689068ee83c11f2c4087f319
+
+jobs:
+  build-gpq-cli:
+    defaults:
+      run:
+        shell: pwsh
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: "SLAzurin/gpq-image-ocr"
+          ref: "${{ env.GPQ_CLI_VERSION }}"
+      - name: Cache gpq cli
+        uses: actions/cache@v4
+        with:
+          path: ./dist/gpq
+          key: ${{ runner.os }}-gpq-cli-${{ github.run_number }}
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Validate py312 with black
+        run: |
+          black --target-version=py312 ./gpq.py
+      - name: Build app
+        run: |
+          pyinstaller gpq.py
+
+  build-gpq-ui:
+    needs:
+      - build-gpq-cli
+    defaults:
+      run:
+        shell: pwsh
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache gpq cli
+        uses: actions/cache@v4
+        with:
+          path: ./gpq
+          key: ${{ runner.os }}-gpq-cli-${{ github.run_number }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+      - name: Install dependencies
+        run: |
+          npm i -g pnpm
+          pnpm i
+      - name: Build
+        run: |
+          pnpm run build
+      - name: Write Release Body
+        run: iex "echo `"${{ github.event.head_commit.message }}`" | Tee-Object RELEASE_BODY"
+      - name: Release
+        if: ${{ !env.ACT }}
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release gpq-image-ocr-gui nightly-${{ github.sha }}
+          body_path: ./RELEASE_BODY
+          draft: false
+          tag_name: nightly-${{ github.sha }}
+          files: |
+            latest.yml
+            GPQ Image OCR GUI-Windows-*-Setup.exe.blockmap
+            GPQ Image OCR GUI-Windows-*-Setup.exe
+          fail_on_unmatched_files: true
