@@ -25,9 +25,10 @@ jobs:
       - name: Cache gpq cli
         uses: actions/cache@v4
         with:
+          enableCrossOsArchive: true
           path: ./dist/gpq
           key: ${{ runner.os }}-gpq-cli-${{ github.run_number }}
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Install dependencies
@@ -54,6 +55,7 @@ jobs:
       - name: Cache gpq cli
         uses: actions/cache@v4
         with:
+          enableCrossOsArchive: true
           path: ./gpq
           key: ${{ runner.os }}-gpq-cli-${{ github.run_number }}
       - uses: actions/setup-node@v4
