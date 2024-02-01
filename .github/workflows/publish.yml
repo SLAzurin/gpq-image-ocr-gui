@@ -69,6 +69,7 @@ jobs:
   build-gpq-ui:
     needs:
       - build-gpq-cli
+    if: always()
     defaults:
       run:
         shell: pwsh
