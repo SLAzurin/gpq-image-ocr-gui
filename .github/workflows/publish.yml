@@ -106,7 +106,7 @@ jobs:
           draft: false
           tag_name: nightly-${{ github.sha }}
           files: |
-            latest.yml
-            GPQ Image OCR GUI-Windows-*-Setup.exe.blockmap
-            GPQ Image OCR GUI-Windows-*-Setup.exe
+            release/latest.yml
+            release/GPQ Image OCR GUI-Windows-*-Setup.exe.blockmap
+            release/GPQ Image OCR GUI-Windows-*-Setup.exe
           fail_on_unmatched_files: true
