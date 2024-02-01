@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 // WARNING this might not even be used...
 import { createWorker, PSM } from "tesseract.js";
 // const { createWorker, PSM } = window.tesseract;
@@ -139,4 +139,4 @@ export const ocr = async (
 
   return ret;
 };
-</script>
+</script> -->

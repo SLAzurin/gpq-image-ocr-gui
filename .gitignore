@@ -11,3 +11,4 @@ dist-electron
 release
 gpq-*
 gpq/*
+src/output.css

@@ -2,17 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  cursor: url("mspoint.cur"), default;
-}
-
-button:hover {
-  cursor: url("mspoint.cur"), default;
-}
-button:active {
-  box-shadow: 2px 2px 5px #1267c9;
-}
-
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
