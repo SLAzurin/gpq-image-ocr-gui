@@ -4,7 +4,7 @@
   "appId": "gpq-image-ocr-gui",
   "asar": true,
   "productName": "GPQ Image OCR GUI",
-  "directories": { "output": "release/${version}" },
+  "directories": { "output": "release" },
   "files": ["dist", "dist-electron"],
   "extraFiles": ["gpq"],
   "mac":
