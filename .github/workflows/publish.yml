@@ -96,6 +96,7 @@ jobs:
         run: |
           pnpm i --frozen-lockfile
       - name: Restore electron cache
+        id: restore-electron-cache
         uses: actions/cache/restore@v4
         with:
           fail-on-cache-miss: false
@@ -109,6 +110,7 @@ jobs:
           pnpm run build
       - name: Save electron cache
         uses: actions/cache/save@v4
+        if: ${{ !steps.restore-electron-cache.outputs.cache-hit }}
         with:
           path: ./.cache
           key: ${{ runner.os }}-gpq-cli-electron-cache-${{ hashFiles('pnpm-lock.yaml') }}
