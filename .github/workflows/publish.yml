@@ -2,7 +2,10 @@ name: Publish GPQ Image OCR GUI
 
 on:
   push:
-    branches: ["master"]
+    branches:
+      - "*"
+    tags:
+      - "v*.*.*"
 
 permissions:
   contents: write
@@ -93,6 +96,7 @@ jobs:
         run: |
           pnpm i --frozen-lockfile
       - name: Restore electron cache
+        id: restore-electron-cache
         uses: actions/cache/restore@v4
         with:
           fail-on-cache-miss: false
@@ -104,10 +108,16 @@ jobs:
           ELECTRON_BUILDER_CACHE: ./.cache/electron-builder
         run: |
           pnpm run build
+      - name: Save electron cache
+        uses: actions/cache/save@v4
+        if: ${{ !steps.restore-electron-cache.outputs.cache-hit }}
+        with:
+          path: ./.cache
+          key: ${{ runner.os }}-gpq-cli-electron-cache-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Write Release Body
         run: iex "echo `"${{ github.event.head_commit.message }}`" | Tee-Object RELEASE_BODY"
       - name: Release
-        if: ${{ !env.ACT }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
         uses: softprops/action-gh-release@v1
         with:
           name: Release gpq-image-ocr-gui nightly-${{ github.sha }}
