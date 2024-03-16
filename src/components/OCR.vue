@@ -70,6 +70,21 @@ const processImages = async (base64image: string) => {
   });
 };
 
+const setMembers = (v: string) => {
+  try {
+    const m: string[] = JSON.parse(v);
+    members.value = m;
+    localStorage.setItem("members", JSON.stringify(m));
+    results.value = {};
+    statusStr.value = `Successfully imported ${m.length} member(s)`;
+    statusType.value = "alert-success";
+  } catch (e: unknown) {
+    statusStr.value = "Failed to update members list";
+    statusType.value = "alert-error";
+    console.log(e, v);
+  }
+};
+
 const pasteContent = (e: ClipboardEvent) => {
   statusType.value = "";
   if (e.clipboardData?.items[0].type.startsWith("image/")) {
@@ -85,20 +100,7 @@ const pasteContent = (e: ClipboardEvent) => {
       };
     }
   } else if (e.clipboardData?.items[0].kind === "string") {
-    e.clipboardData?.items[0].getAsString((v) => {
-      try {
-        const m: string[] = JSON.parse(v);
-        members.value = m;
-        localStorage.setItem("members", JSON.stringify(m));
-        results.value = {};
-        statusStr.value = `Successfully imported ${m.length} member(s)`;
-        statusType.value = "alert-success";
-      } catch (e: unknown) {
-        statusStr.value = "Failed to update members list";
-        statusType.value = "alert-error";
-        console.log(e, v);
-      }
-    });
+    e.clipboardData?.items[0].getAsString(setMembers);
   }
 };
 
@@ -111,10 +113,27 @@ const copyResultsToClipboard = () => {
     alert("Failed to copy results to clipboard");
   }
 };
+
+
+
+const onFileDrop = (e: any) => {
+  console.log(e);
+};
 </script>
 
 <template>
-  <div class="main-run">
+  <form class="main-run" @drop="onFileDrop">
+    <input
+      type="file"
+      multiple
+      name="file"
+      id="fileInput"
+      class="hidden-input"
+      :hidden="true"
+      @change="onFileDrop"
+      ref="file"
+      accept=".jpg,.jpeg,.png"
+    />
     <h1 style="margin-bottom: 1em">Welcome to GPQ Image OCR</h1>
     <div class="horizontal">
       <div class="vertical">
@@ -152,7 +171,7 @@ ${members.length} member(s)`"
         />
       </div>
     </div>
-  </div>
+  </form>
   <div
     v-if="statusType === 'alert-success'"
     role="alert"
