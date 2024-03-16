@@ -86,7 +86,7 @@ jobs:
           key: ${{ runner.os }}-gpq-cli-${{ env.GPQ_CLI_VERSION }}
       - name: Verify gpq cli
         run: if (![System.IO.File]::Exists('gpq/gpq.exe')) { exit 1; }
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v3
       - uses: actions/setup-node@v4
         with:
           node-version: "${{ env.NODE_VERSION }}"
