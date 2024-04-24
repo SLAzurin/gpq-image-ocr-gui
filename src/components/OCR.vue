@@ -23,6 +23,50 @@ const statusType = ref<"alert-success" | "alert-error" | "alert-warning" | "">(
 );
 const processing = ref(false);
 
+const processVideo = async (videoPath: string) => {
+  processing.value = true;
+  console.log("spawning");
+
+  const stdinStream = new stream.Readable();
+  stdinStream.push(
+    JSON.stringify({
+      members: members.value,
+    })
+  ); // Add data to the internal queue for users of the stream to consume
+  stdinStream.push(null); // Signals the end of the stream (EOF)
+
+  const c = child_process.spawn(
+    ".\\gpq.exe",
+    ["--subprocess=true", "--video=" + videoPath],
+    {
+      cwd: process.cwd() + path.sep + "gpq",
+      shell: "powershell",
+    }
+  );
+  c.stdin.setDefaultEncoding("utf-8");
+  stdinStream.pipe(c.stdin);
+  let stdout = "";
+  c.stdout.on("data", (data) => {
+    stdout += data.toString("utf-8");
+  });
+  let stderr = "";
+  c.stderr.on("data", (data) => {
+    stderr += data;
+  });
+  c.on("exit", (exitCode) => {
+    processing.value = false;
+    if (exitCode === 0) {
+      console.log(stdout);
+      const o = JSON.parse(stdout);
+      Object.entries<number>(o).forEach(([k, v]) => {
+        results.value[k] = v;
+      });
+    } else {
+      console.log(stdout, stderr);
+    }
+  });
+};
+
 const processImages = async (base64image: string) => {
   processing.value = true;
   // const fName = localStorage.getItem("GPQ_TOOL_VERSION");
@@ -99,6 +143,12 @@ const pasteContent = (e: ClipboardEvent) => {
         console.log(e, v);
       }
     });
+  } else if (e.clipboardData?.items[0].type === "video/mp4") {
+    const f = e.clipboardData?.items[0].getAsFile();
+    if (f) {
+      console.log(f.path);
+      processVideo(f.path);
+    }
   }
 };
 

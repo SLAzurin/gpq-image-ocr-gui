@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 env:
-  GPQ_CLI_VERSION: nightly-6fb97dc1de794ca8689068ee83c11f2c4087f319
+  GPQ_CLI_VERSION: v1.1.0
   NODE_VERSION: "20"
 
 jobs:
