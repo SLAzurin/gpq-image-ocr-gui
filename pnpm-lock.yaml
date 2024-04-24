@@ -28,10 +28,10 @@ importers:
         specifier: ^4.10.2
         version: 4.10.2(postcss@8.4.33)
       electron:
-        specifier: ^28.3.1
+        specifier: ^28.2.1
         version: 28.3.1
       electron-builder:
-        specifier: ^24.13.3
+        specifier: ^24.9.1
         version: 24.13.3(electron-builder-squirrel-windows@24.13.3(dmg-builder@24.13.3))
       eslint:
         specifier: ^8.57.0
@@ -3068,7 +3068,7 @@ snapshots:
       minimatch: 5.1.6
       read-config-file: 6.3.2
       sanitize-filename: 1.6.3
-      semver: 7.5.4
+      semver: 7.6.0
       tar: 6.2.0
       temp-file: 3.4.0
     transitivePeerDependencies:
@@ -4726,7 +4726,7 @@ snapshots:
 
   simple-update-notifier@2.0.0:
     dependencies:
-      semver: 7.5.4
+      semver: 7.6.0
 
   slash@3.0.0: {}
 
