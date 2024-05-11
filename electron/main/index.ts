@@ -16,11 +16,14 @@ const __dirname = dirname(__filename);
 // ├─┬ dist
 // │ └── index.html    > Electron-Renderer
 //
-process.env.DIST_ELECTRON = join(__dirname, "..");
-process.env.DIST = join(process.env.DIST_ELECTRON, "../dist");
-process.env.VITE_PUBLIC = process.env.VITE_DEV_SERVER_URL
-  ? join(process.env.DIST_ELECTRON, "../public")
-  : process.env.DIST;
+process.env.APP_ROOT = join(__dirname, "../..");
+export const MAIN_DIST = join(process.env.APP_ROOT, "dist-electron");
+export const RENDERER_DIST = join(process.env.APP_ROOT, "dist");
+export const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
+
+process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL
+  ? join(process.env.APP_ROOT, "public")
+  : RENDERER_DIST;
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith("6.1")) app.disableHardwareAcceleration();
@@ -39,17 +42,15 @@ if (!app.requestSingleInstanceLock()) {
 // process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
 let win: BrowserWindow | null = null;
-// Here, you can also use other preload
-const preload = join(__dirname, "../preload/index.mjs");
-const url = process.env.VITE_DEV_SERVER_URL;
-const indexHtml = join(process.env.DIST, "index.html");
+// const preload = join(__dirname, "../preload/index.mjs");
+const indexHtml = join(RENDERER_DIST, "index.html");
 
 async function createWindow() {
   win = new BrowserWindow({
     title: "Main window",
     icon: join(process.env.VITE_PUBLIC, "favicon.ico"),
     webPreferences: {
-      preload,
+      // preload,
       // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
       nodeIntegration: true,
 
@@ -59,9 +60,9 @@ async function createWindow() {
     },
   });
 
-  if (process.env.VITE_DEV_SERVER_URL) {
-    // electron-vite-vue#298
-    win.loadURL(url);
+  if (VITE_DEV_SERVER_URL) {
+    // #298
+    win.loadURL(VITE_DEV_SERVER_URL);
     // Open devTool if the app is not packaged
     win.webContents.openDevTools();
   } else {
