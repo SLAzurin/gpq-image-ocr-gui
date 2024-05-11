@@ -30,13 +30,13 @@
   },
   "type": "module",
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/eslint-plugin": "^7.8.0",
     "@vitejs/plugin-vue": "^5.0.4",
     "daisyui": "^4.11.1",
     "electron": "^29.3.3",
     "electron-builder": "^24.13.3",
     "eslint": "^8.57.0",
-    "eslint-config-standard-with-typescript": "^43.0.1",
+    "eslint-config-love": "^47.0.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-n": "^16.6.2",
     "eslint-plugin-promise": "^6.1.1",
@@ -50,5 +50,5 @@
     "vue": "^3.4.27",
     "vue-tsc": "^2.0.17"
   },
-  "packageManager": "pnpm@9.1.0+sha256.22e36fba7f4880ecf749a5ca128b8435da085ecd49575e7fb9e64d6bf4fad394"
+  "packageManager": "pnpm@8.15.8+sha256.691fe176eea9a8a80df20e4976f3dfb44a04841ceb885638fe2a26174f81e65e"
 }
