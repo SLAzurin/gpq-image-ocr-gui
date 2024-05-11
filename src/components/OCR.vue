@@ -238,7 +238,7 @@ ${members.length} member(s)`"
           className="alert alert-error"
           role="alert"
         >
-          JSON format error!
+          JSON format syntax error!
         </div>
         <codemirror
           v-model="resultsStr"
