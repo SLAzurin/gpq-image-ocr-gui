@@ -1,6 +1,6 @@
 {
   "name": "gpq-image-ocr-gui",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Maplestory GPQ score screenshots to JSON",
   "main": "dist-electron/main/index.js",
   "scripts": {
@@ -13,9 +13,11 @@
   "author": "SLAzurin",
   "license": "MIT",
   "dependencies": {
-    "@highlightjs/vue-plugin": "^2.1.2",
+    "@codemirror/lang-json": "^6.0.1",
+    "@codemirror/theme-one-dark": "^6.1.2",
     "axios": "^1.6.8",
-    "highlight.js": "^11.9.0"
+    "codemirror": "^6.0.1",
+    "vue-codemirror": "^6.1.1"
   },
   "debug": {
     "env": {
@@ -48,5 +50,5 @@
     "vue": "^3.4.24",
     "vue-tsc": "^2.0.14"
   },
-  "packageManager": "pnpm@9.0.5+sha256.61bd66913b52012107ec25a6ee4d6a161021ab99e04f6acee3aa50d0e34b4af9"
+  "packageManager": "pnpm@9.1.0+sha256.22e36fba7f4880ecf749a5ca128b8435da085ecd49575e7fb9e64d6bf4fad394"
 }

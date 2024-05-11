@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
+import { Codemirror } from "vue-codemirror";
+import { json } from "@codemirror/lang-json";
+import { oneDark } from "@codemirror/theme-one-dark";
 import * as child_process from "node:child_process";
 import * as path from "node:path";
 import * as stream from "node:stream";
-import "highlight.js/lib/common";
-import hljsVuePlugin from "@highlightjs/vue-plugin";
-
-defineProps();
-
-const results = ref<{ [key: string]: number }>({});
 
 const members = ref<string[]>([]);
 try {
@@ -17,6 +14,29 @@ try {
 } catch (e: unknown) {
   // dont do anything, just leave it []
 }
+
+const missingMembers = ref<string[]>([]);
+const resultsStr = ref("{\n\n}");
+const resultsStrIsValid = ref(true);
+const extensions = [json(), oneDark];
+
+watch(resultsStr, async (newV) => {
+  try {
+    const o = JSON.parse(newV);
+    resultsStrIsValid.value = true;
+    const newMissingMembers: string[] = [];
+    Object.keys(o).forEach((k) => {
+      if (members.value.includes(k) === false) {
+        newMissingMembers.push(k);
+      }
+    });
+    missingMembers.value = newMissingMembers;
+  } catch (e: unknown) {
+    console.log("error new resultsStr not json");
+    resultsStrIsValid.value = false;
+  }
+});
+
 const statusStr = ref("");
 const statusType = ref<"alert-success" | "alert-error" | "alert-warning" | "">(
   ""
@@ -58,9 +78,11 @@ const processVideo = async (videoPath: string) => {
     if (exitCode === 0) {
       console.log(stdout);
       const o = JSON.parse(stdout);
+      const o2 = JSON.parse(resultsStr.value);
       Object.entries<number>(o).forEach(([k, v]) => {
-        results.value[k] = v;
+        o2[k] = v;
       });
+      resultsStr.value = JSON.stringify(o2, null, 4);
     } else {
       console.log(stdout, stderr);
     }
@@ -105,9 +127,11 @@ const processImages = async (base64image: string) => {
     if (exitCode === 0) {
       console.log(stdout);
       const o = JSON.parse(stdout);
+      const o2 = JSON.parse(resultsStr.value);
       Object.entries<number>(o).forEach(([k, v]) => {
-        results.value[k] = v;
+        o2[k] = v;
       });
+      resultsStr.value = JSON.stringify(o2, null, 4);
     } else {
       console.log(stdout, stderr);
     }
@@ -115,6 +139,9 @@ const processImages = async (base64image: string) => {
 };
 
 const pasteContent = (e: ClipboardEvent) => {
+  if (!resultsStrIsValid.value) {
+    return;
+  }
   statusType.value = "";
   if (e.clipboardData?.items[0].type.startsWith("image/")) {
     const f = e.clipboardData?.items[0].getAsFile();
@@ -134,7 +161,6 @@ const pasteContent = (e: ClipboardEvent) => {
         const m: string[] = JSON.parse(v);
         members.value = m;
         localStorage.setItem("members", JSON.stringify(m));
-        results.value = {};
         statusStr.value = `Successfully imported ${m.length} member(s)`;
         statusType.value = "alert-success";
       } catch (e: unknown) {
@@ -154,11 +180,11 @@ const pasteContent = (e: ClipboardEvent) => {
 
 const copyResultsToClipboard = () => {
   try {
-    navigator.clipboard.writeText(JSON.stringify(results.value));
+    navigator.clipboard.writeText(resultsStr.value);
     statusStr.value = "Copied result to clipboard!";
     statusType.value = "alert-success";
   } catch (err) {
-    alert("Failed to copy results to clipboard");
+    alert("Failed to copy resultsStr to clipboard");
   }
 };
 </script>
@@ -193,12 +219,41 @@ ${members.length} member(s)`"
         <div v-else></div>
       </div>
       <div class="center">
-        <button @click="copyResultsToClipboard">
+        <button
+          @click="copyResultsToClipboard"
+          className="btn btn-primary"
+          :disabled="!resultsStrIsValid"
+        >
           Copy results to clipboard
         </button>
-        <hljsVuePlugin.component
-          language="json"
-          :code="JSON.stringify(results, null, 4)"
+        <div
+          v-if="missingMembers.length > 0"
+          className="alert alert-warning"
+          role="alert"
+        >
+          Missing members: {{ missingMembers.join(", ") }}
+        </div>
+        <div
+          v-if="!resultsStrIsValid"
+          className="alert alert-error"
+          role="alert"
+        >
+          JSON format error!
+        </div>
+        <codemirror
+          v-model="resultsStr"
+          placeholder="Code goes here..."
+          :style="{
+            minHeight: '60vh',
+            minWidth: '30vw',
+            textAlign: 'left',
+            fontSize: '1rem',
+          }"
+          :autofocus="true"
+          :indent-with-tab="true"
+          :tab-size="4"
+          :extensions="extensions"
+          @change="resultsStr = $event"
         />
       </div>
     </div>
