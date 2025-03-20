@@ -14,6 +14,7 @@
     },
   "win":
     {
+      "publish": ["github"],
       "target": [{ "target": "nsis", "arch": ["x64"] }],
       "artifactName": "${productName}-Windows-${version}-Setup.${ext}",
     },
