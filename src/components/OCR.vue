@@ -229,12 +229,12 @@ const copyResultsToClipboard = () => {
     <div class="horizontal">
       <div class="vertical">
         <h4>
-          Credits:<br />UI & supporting logic dev:
-          <span class="underline">AzurinDayo</span> (iMonoxian)<br />Main logic
-          dev: <span class="underline">qbkl</span> (inuwater)
+          Credits:<br />UI & main dev:
+          <span class="underline">AzurinDayo</span> (iMonoxian)<br />OCR dev:
+          <span class="underline">qbkl</span> (inuwater)
         </h4>
         <h4>
-          Other Contributors:<br />Supporting logic dev:
+          Other Contributors:<br />Supporting OCR dev:
           <span class="underline">YellowCello</span> (BlueFlute)
         </h4>
         <p></p>
