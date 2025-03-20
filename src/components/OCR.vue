@@ -20,6 +20,9 @@ const resultsStr = ref("{\n\n}");
 const resultsStrIsValid = ref(true);
 const extensions = [json(), oneDark];
 const childProcessError = ref(false);
+const descendingOrderCheckIssueMemberName = ref("");
+const descendingOrderCheckIssueMemberScore = ref(0);
+const showMembersListUI = ref(false);
 
 watch(members, async (newV) => {
   const newMissingMembers: string[] = [];
@@ -32,20 +35,36 @@ watch(members, async (newV) => {
 });
 
 watch(resultsStr, async (newV) => {
+  let o: Record<string, number>;
+  // missing members check
   try {
-    const o = JSON.parse(newV);
-    resultsStrIsValid.value = true;
-    const newMissingMembers: string[] = [];
-    Object.keys(o).forEach((k) => {
-      if (members.value.includes(k) === false) {
-        newMissingMembers.push(k);
-      }
-    });
-    missingMembers.value = newMissingMembers;
+    o = JSON.parse(newV);
   } catch (e: unknown) {
     console.log("error new resultsStr not json");
     resultsStrIsValid.value = false;
+    return;
   }
+  resultsStrIsValid.value = true;
+  const newMissingMembers: string[] = [];
+  Object.keys(o).forEach((k) => {
+    if (members.value.includes(k) === false) {
+      newMissingMembers.push(k);
+    }
+  });
+  missingMembers.value = newMissingMembers;
+
+  // Descending order check
+  let m = "";
+  let prev = Number.POSITIVE_INFINITY;
+  for (const [k, v] of Object.entries(o)) {
+    if (v >= prev) {
+      m = k;
+      descendingOrderCheckIssueMemberScore.value = v;
+      break;
+    }
+    prev = v;
+  }
+  descendingOrderCheckIssueMemberName.value = m;
 });
 
 const statusStr = ref("");
@@ -235,7 +254,24 @@ ${members.length} member(s)`"
           Failed to run OCR process for your image/video.<br />Please re-take a
           new screenshot or video and try again.
         </div>
-        <div v-else-if="!processing">Done</div>
+        <br />
+        <button
+          @click="
+            () => {
+              showMembersListUI = !showMembersListUI;
+            }
+          "
+        >
+          {{ showMembersListUI ? "Hide" : "Show" }} members list
+        </button>
+        <div
+          v-if="showMembersListUI"
+          style="overflow: hidden; overflow-y: scroll; max-height: 8rem"
+        >
+          <div class="members-list-ui" v-for="m in members.sort()">
+            {{ m }}
+          </div>
+        </div>
       </div>
       <div class="center">
         <button
@@ -251,6 +287,15 @@ ${members.length} member(s)`"
           role="alert"
         >
           Missing members: {{ missingMembers.join(", ") }}
+        </div>
+        <div
+          v-if="descendingOrderCheckIssueMemberName != ''"
+          className="alert alert-warning"
+          role="alert"
+        >
+          List of scores is not in descending order, Check the scrores near:
+          {{ descendingOrderCheckIssueMemberName }}
+          {{ descendingOrderCheckIssueMemberScore }}
         </div>
         <div
           v-if="!resultsStrIsValid"
