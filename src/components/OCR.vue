@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, useTemplateRef } from "vue";
 import { Codemirror } from "vue-codemirror";
 import { json } from "@codemirror/lang-json";
 import { oneDark } from "@codemirror/theme-one-dark";
@@ -21,8 +21,8 @@ const resultsStrIsValid = ref(true);
 const extensions = [json(), oneDark];
 const childProcessError = ref(false);
 const descendingOrderCheckIssueMemberName = ref("");
-const descendingOrderCheckIssueMemberScore = ref(0);
 const showMembersListUI = ref(false);
+const resultsDiv = useTemplateRef("resultsDiv");
 
 watch(members, async (newV) => {
   const newMissingMembers: string[] = [];
@@ -35,6 +35,10 @@ watch(members, async (newV) => {
 });
 
 watch(resultsStr, async (newV) => {
+  // always scroll results to bottom when new value is set
+  if (resultsDiv.value)
+    resultsDiv.value.scrollTop = resultsDiv.value.scrollHeight;
+
   let o: Record<string, number>;
   // missing members check
   try {
@@ -59,7 +63,6 @@ watch(resultsStr, async (newV) => {
   for (const [k, v] of Object.entries(o)) {
     if (v >= prev) {
       m = k;
-      descendingOrderCheckIssueMemberScore.value = v;
       break;
     }
     prev = v;
@@ -266,7 +269,7 @@ ${members.length} member(s)`"
         </button>
         <div
           v-if="showMembersListUI"
-          style="overflow: hidden; overflow-y: scroll; max-height: 8rem"
+          style="overflow: hidden; overflow-y: scroll; max-height: 10vw"
         >
           <div class="members-list-ui" v-for="m in members.sort()">
             {{ m }}
@@ -295,7 +298,6 @@ ${members.length} member(s)`"
         >
           List of scores is not in descending order, Check the scrores near:
           {{ descendingOrderCheckIssueMemberName }}
-          {{ descendingOrderCheckIssueMemberScore }}
         </div>
         <div
           v-if="!resultsStrIsValid"
@@ -304,21 +306,26 @@ ${members.length} member(s)`"
         >
           JSON format syntax error!
         </div>
-        <codemirror
-          v-model="resultsStr"
-          placeholder="Code goes here..."
-          :style="{
-            minHeight: '60vh',
-            minWidth: '30vw',
-            textAlign: 'left',
-            fontSize: '1rem',
-          }"
-          :autofocus="true"
-          :indent-with-tab="true"
-          :tab-size="4"
-          :extensions="extensions"
-          @change="resultsStr = $event"
-        />
+        <div
+          ref="resultsDiv"
+          style="overflow: hidden; overflow-y: scroll; max-height: 30vw"
+        >
+          <codemirror
+            v-model="resultsStr"
+            placeholder="Code goes here..."
+            :style="{
+              minHeight: '60vh',
+              minWidth: '30vw',
+              textAlign: 'left',
+              fontSize: '1rem',
+            }"
+            :autofocus="true"
+            :indent-with-tab="true"
+            :tab-size="4"
+            :extensions="extensions"
+            @change="resultsStr = $event"
+          />
+        </div>
       </div>
     </div>
   </div>
