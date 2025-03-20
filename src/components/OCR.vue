@@ -19,15 +19,16 @@ const missingMembers = ref<string[]>([]);
 const resultsStr = ref("{\n\n}");
 const resultsStrIsValid = ref(true);
 const extensions = [json(), oneDark];
+const childProcessError = ref(false);
 
 watch(members, async (newV) => {
   const newMissingMembers: string[] = [];
-    Object.keys(JSON.parse(resultsStr.value)).forEach((k) => {
-      if (newV.includes(k) === false) {
-        newMissingMembers.push(k);
-      }
-    });
-    missingMembers.value = newMissingMembers;
+  Object.keys(JSON.parse(resultsStr.value)).forEach((k) => {
+    if (newV.includes(k) === false) {
+      newMissingMembers.push(k);
+    }
+  });
+  missingMembers.value = newMissingMembers;
 });
 
 watch(resultsStr, async (newV) => {
@@ -93,8 +94,10 @@ const processVideo = async (videoPath: string) => {
         o2[k] = v;
       });
       resultsStr.value = JSON.stringify(o2, null, 4);
+      childProcessError.value = false;
     } else {
       console.log(stdout, stderr);
+      childProcessError.value = true;
     }
   });
 };
@@ -142,8 +145,10 @@ const processImages = async (base64image: string) => {
         o2[k] = v;
       });
       resultsStr.value = JSON.stringify(o2, null, 4);
+      childProcessError.value = false;
     } else {
       console.log(stdout, stderr);
+      childProcessError.value = true;
     }
   });
 };
@@ -226,7 +231,11 @@ ${members.length} member(s)`"
           readonly
         ></textarea>
         <div v-if="processing">Working...</div>
-        <div v-else></div>
+        <div v-else-if="childProcessError" style="color: red">
+          Failed to run OCR process for your image/video.<br />Please re-take a
+          new screenshot or video and try again.
+        </div>
+        <div v-else-if="!processing">Done</div>
       </div>
       <div class="center">
         <button
