@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, useTemplateRef } from "vue";
 import { Codemirror } from "vue-codemirror";
 import { json } from "@codemirror/lang-json";
 import { oneDark } from "@codemirror/theme-one-dark";
@@ -19,22 +19,55 @@ const missingMembers = ref<string[]>([]);
 const resultsStr = ref("{\n\n}");
 const resultsStrIsValid = ref(true);
 const extensions = [json(), oneDark];
+const childProcessError = ref(false);
+const descendingOrderCheckIssueMemberName = ref("");
+const showMembersListUI = ref(false);
+const resultsDiv = useTemplateRef("resultsDiv");
+
+watch(members, async (newV) => {
+  const newMissingMembers: string[] = [];
+  Object.keys(JSON.parse(resultsStr.value)).forEach((k) => {
+    if (newV.includes(k) === false) {
+      newMissingMembers.push(k);
+    }
+  });
+  missingMembers.value = newMissingMembers;
+});
 
 watch(resultsStr, async (newV) => {
+  // always scroll results to bottom when new value is set
+  if (resultsDiv.value)
+    resultsDiv.value.scrollTop = resultsDiv.value.scrollHeight;
+
+  let o: Record<string, number>;
+  // missing members check
   try {
-    const o = JSON.parse(newV);
-    resultsStrIsValid.value = true;
-    const newMissingMembers: string[] = [];
-    Object.keys(o).forEach((k) => {
-      if (members.value.includes(k) === false) {
-        newMissingMembers.push(k);
-      }
-    });
-    missingMembers.value = newMissingMembers;
+    o = JSON.parse(newV);
   } catch (e: unknown) {
     console.log("error new resultsStr not json");
     resultsStrIsValid.value = false;
+    return;
   }
+  resultsStrIsValid.value = true;
+  const newMissingMembers: string[] = [];
+  Object.keys(o).forEach((k) => {
+    if (members.value.includes(k) === false) {
+      newMissingMembers.push(k);
+    }
+  });
+  missingMembers.value = newMissingMembers;
+
+  // Descending order check
+  let m = "";
+  let prev = Number.POSITIVE_INFINITY;
+  for (const [k, v] of Object.entries(o)) {
+    if (v >= prev) {
+      m = k;
+      break;
+    }
+    prev = v;
+  }
+  descendingOrderCheckIssueMemberName.value = m;
 });
 
 const statusStr = ref("");
@@ -83,8 +116,10 @@ const processVideo = async (videoPath: string) => {
         o2[k] = v;
       });
       resultsStr.value = JSON.stringify(o2, null, 4);
+      childProcessError.value = false;
     } else {
       console.log(stdout, stderr);
+      childProcessError.value = true;
     }
   });
 };
@@ -132,8 +167,10 @@ const processImages = async (base64image: string) => {
         o2[k] = v;
       });
       resultsStr.value = JSON.stringify(o2, null, 4);
+      childProcessError.value = false;
     } else {
       console.log(stdout, stderr);
+      childProcessError.value = true;
     }
   });
 };
@@ -195,12 +232,12 @@ const copyResultsToClipboard = () => {
     <div class="horizontal">
       <div class="vertical">
         <h4>
-          Credits:<br />UI & supporting logic dev:
-          <span class="underline">AzurinDayo</span> (iMonoxian)<br />Main logic
-          dev: <span class="underline">qbkl</span> (inuwater)
+          Credits:<br />UI & main dev:
+          <span class="underline">AzurinDayo</span> (iMonoxian)<br />OCR dev:
+          <span class="underline">qbkl</span> (inuwater)
         </h4>
         <h4>
-          Other Contributors:<br />Supporting logic dev:
+          Other Contributors:<br />Supporting OCR dev:
           <span class="underline">YellowCello</span> (BlueFlute)
         </h4>
         <p></p>
@@ -216,7 +253,28 @@ ${members.length} member(s)`"
           readonly
         ></textarea>
         <div v-if="processing">Working...</div>
-        <div v-else></div>
+        <div v-else-if="childProcessError" style="color: red">
+          Failed to run OCR process for your image/video.<br />Please re-take a
+          new screenshot or video and try again.
+        </div>
+        <br />
+        <button
+          @click="
+            () => {
+              showMembersListUI = !showMembersListUI;
+            }
+          "
+        >
+          {{ showMembersListUI ? "Hide" : "Show" }} members list
+        </button>
+        <div
+          v-if="showMembersListUI"
+          style="overflow: hidden; overflow-y: scroll; max-height: 10vw"
+        >
+          <div class="members-list-ui" v-for="m in members.sort()">
+            {{ m }}
+          </div>
+        </div>
       </div>
       <div class="center">
         <button
@@ -234,27 +292,40 @@ ${members.length} member(s)`"
           Missing members: {{ missingMembers.join(", ") }}
         </div>
         <div
+          v-if="descendingOrderCheckIssueMemberName != ''"
+          className="alert alert-warning"
+          role="alert"
+        >
+          List of scores is not in descending order, Check the scrores near:
+          {{ descendingOrderCheckIssueMemberName }}
+        </div>
+        <div
           v-if="!resultsStrIsValid"
           className="alert alert-error"
           role="alert"
         >
           JSON format syntax error!
         </div>
-        <codemirror
-          v-model="resultsStr"
-          placeholder="Code goes here..."
-          :style="{
-            minHeight: '60vh',
-            minWidth: '30vw',
-            textAlign: 'left',
-            fontSize: '1rem',
-          }"
-          :autofocus="true"
-          :indent-with-tab="true"
-          :tab-size="4"
-          :extensions="extensions"
-          @change="resultsStr = $event"
-        />
+        <div
+          ref="resultsDiv"
+          style="overflow: hidden; overflow-y: scroll; max-height: 30vw"
+        >
+          <codemirror
+            v-model="resultsStr"
+            placeholder="Code goes here..."
+            :style="{
+              minHeight: '60vh',
+              minWidth: '30vw',
+              textAlign: 'left',
+              fontSize: '1rem',
+            }"
+            :autofocus="true"
+            :indent-with-tab="true"
+            :tab-size="4"
+            :extensions="extensions"
+            @change="resultsStr = $event"
+          />
+        </div>
       </div>
     </div>
   </div>
