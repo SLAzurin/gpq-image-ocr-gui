@@ -2,6 +2,14 @@ import { app, BrowserWindow, shell, ipcMain } from "electron";
 import { release } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import electronUpdater, { type AppUpdater } from "electron-updater";
+
+export function getAutoUpdater(): AppUpdater {
+  // Using destructuring to access autoUpdater due to the CommonJS module of 'electron-updater'.
+  // It is a workaround for ESM compatibility issues, see https://github.com/electron-userland/electron-builder/issues/7976.
+  const { autoUpdater } = electronUpdater;
+  return autoUpdater;
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -87,7 +95,10 @@ async function createWindow() {
   });
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  createWindow();
+  getAutoUpdater().checkForUpdatesAndNotify();
+});
 
 app.on("window-all-closed", () => {
   win = null;
