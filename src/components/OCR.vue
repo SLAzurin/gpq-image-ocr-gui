@@ -20,6 +20,16 @@ const resultsStr = ref("{\n\n}");
 const resultsStrIsValid = ref(true);
 const extensions = [json(), oneDark];
 
+watch(members, async (newV) => {
+  const newMissingMembers: string[] = [];
+    Object.keys(JSON.parse(resultsStr.value)).forEach((k) => {
+      if (newV.includes(k) === false) {
+        newMissingMembers.push(k);
+      }
+    });
+    missingMembers.value = newMissingMembers;
+});
+
 watch(resultsStr, async (newV) => {
   try {
     const o = JSON.parse(newV);
