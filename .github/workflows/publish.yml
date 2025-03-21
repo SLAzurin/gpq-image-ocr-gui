@@ -106,6 +106,7 @@ jobs:
         env:
           ELECTRON_CACHE: ./.cache/electron
           ELECTRON_BUILDER_CACHE: ./.cache/electron-builder
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pnpm run build
       - name: Save electron cache
