@@ -50,7 +50,7 @@ if (!app.requestSingleInstanceLock()) {
 // process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
 let win: BrowserWindow | null = null;
-// const preload = join(__dirname, "../preload/index.mjs");
+const preload = join(__dirname, "../preload/index.mjs");
 const indexHtml = join(RENDERER_DIST, "index.html");
 
 async function createWindow() {
@@ -60,10 +60,10 @@ async function createWindow() {
     width: 1280,
     height: 900,
     webPreferences: {
-      // preload,
+      preload,
       // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
       nodeIntegration: true,
-
+      additionalArguments: [`--version-string=` + app.getVersion()],
       // Consider using contextBridge.exposeInMainWorld
       // Read more on https://www.electronjs.org/docs/latest/tutorial/context-isolation
       contextIsolation: false,

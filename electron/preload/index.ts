@@ -116,3 +116,5 @@
 // };
 
 // setTimeout(removeLoading, 4999);
+const arg = process.argv.filter((p) => p.indexOf("--version-string=") >= 0)[0];
+window["version_string"] = arg.substr(arg.indexOf("=") + 1);

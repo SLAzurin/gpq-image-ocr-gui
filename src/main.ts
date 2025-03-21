@@ -7,7 +7,9 @@ import "./output.css";
 // If you want use Node.js, the`nodeIntegration` needs to be enabled in the Main process.
 // import './demos/node'
 
-createApp(App).mount("#app");
+const app = createApp(App);
+app.provide("version_string", window.version_string);
+app.mount("#app");
 // .$nextTick(() => {
 //   postMessage({ payload: "removeLoading" }, "*");
 // });

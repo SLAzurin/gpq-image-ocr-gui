@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, useTemplateRef } from "vue";
+import { ref, watch, useTemplateRef, inject } from "vue";
 import { Codemirror } from "vue-codemirror";
 import { json } from "@codemirror/lang-json";
 import { oneDark } from "@codemirror/theme-one-dark";
@@ -232,6 +232,7 @@ const copyResultsToClipboard = () => {
     <div class="horizontal">
       <div class="vertical">
         <h4>
+          <span id="version-string">Version {{ inject('version_string') }}</span>
           Credits:<br />UI & main dev:
           <span class="underline">AzurinDayo</span> (iMonoxian)<br />OCR dev:
           <span class="underline">qbkl</span> (inuwater)
