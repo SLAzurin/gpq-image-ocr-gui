@@ -1,6 +1,6 @@
 {
   "name": "gpq-image-ocr-gui",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Maplestory GPQ score screenshots to JSON",
   "main": "dist-electron/main/index.js",
   "repository": {
@@ -11,7 +11,7 @@
     "preinstall": "npx only-allow pnpm",
     "dev": "vite",
     "dev:css": "tailwindcss -i ./tailwind.css -o ./src/output.css --watch",
-    "build": "tailwindcss -i ./tailwind.css -o ./src/output.css && vue-tsc --noEmit && vite build && electron-builder --config ./electron-builder-config.yml -p never",
+    "build": "tailwindcss -i ./tailwind.css -o ./src/output.css && vue-tsc --noEmit && vite build && electron-builder --config ./electron-builder-config.yml -p onTag",
     "preview": "vite preview"
   },
   "author": "SLAzurin",
