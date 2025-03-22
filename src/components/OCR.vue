@@ -232,7 +232,9 @@ const copyResultsToClipboard = () => {
     <div class="horizontal">
       <div class="vertical">
         <h4>
-          <span id="version-string">Version {{ inject('version_string') }}</span>
+          <span id="version-string"
+            >Version {{ inject("version_string") }}</span
+          >
           Credits:<br />UI & main dev:
           <span class="underline">AzurinDayo</span> (iMonoxian)<br />OCR dev:
           <span class="underline">qbkl</span> (inuwater)
