@@ -11,7 +11,7 @@
     "preinstall": "npx only-allow pnpm",
     "dev": "vite",
     "dev:css": "tailwindcss -i ./tailwind.css -o ./src/output.css --watch",
-    "build": "tailwindcss -i ./tailwind.css -o ./src/output.css && vue-tsc --noEmit && vite build && electron-builder --config ./electron-builder-config.yml -p onTag",
+    "build": "tailwindcss -i ./tailwind.css -o ./src/output.css && vue-tsc --noEmit && vite build && electron-builder --config ./electron-builder-config.yml -p never",
     "preview": "vite preview"
   },
   "author": "SLAzurin",
