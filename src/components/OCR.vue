@@ -236,12 +236,12 @@ const copyResultsToClipboard = () => {
             >Version {{ inject("version_string") }}</span
           >
           Credits:<br />UI & main dev:
-          <span class="underline">AzurinDayo</span> (iMonoxian)<br />OCR dev:
+          <span class="underline">AzuriDayo_</span> (iMonoxian)<br />OCR dev:
           <span class="underline">qbkl</span> (inuwater)
         </h4>
         <h4>
           Other Contributors:<br />Supporting OCR dev:
-          <span class="underline">YellowCello</span> (BlueFlute)
+          <span class="underline">YellowCello</span> (PinkMandolin)
         </h4>
         <p></p>
         <textarea
