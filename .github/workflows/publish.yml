@@ -12,7 +12,7 @@ permissions:
   contents: write
 
 env:
-  GPQ_CLI_VERSION: v1.2.1
+  GPQ_CLI_VERSION: v1.2.2
 
 jobs:
   check-gpq-cli:
