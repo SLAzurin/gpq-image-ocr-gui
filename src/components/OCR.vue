@@ -56,7 +56,11 @@ watch(
     // update reverse
     autoCorrectReverse.value = {};
     Object.entries(newV).forEach(([k, v]) => {
-      autoCorrectReverse.value[v] = k;
+      const vs = v.split(",");
+      vs.forEach((v) => {
+        if (v.trim() === "") return;
+        autoCorrectReverse.value[v.trim()] = k;
+      });
     });
   },
   {
