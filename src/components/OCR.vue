@@ -25,7 +25,12 @@ try {
 
 const autoCorrectReverse = ref<Record<string, string>>({});
 Object.entries(autoCorrect.value).forEach(([k, v]) => {
-  autoCorrectReverse.value[v] = k;
+  const vsplit = v.split(",");
+  for (const vs of vsplit) {
+    const v = vs.trim();
+    if (v === "") continue;
+    autoCorrectReverse.value[v] = k;
+  }
 });
 
 const missingMembers = ref<string[]>([]);
@@ -57,10 +62,11 @@ watch(
     autoCorrectReverse.value = {};
     Object.entries(newV).forEach(([k, v]) => {
       const vs = v.split(",");
-      vs.forEach((v) => {
-        if (v.trim() === "") return;
-        autoCorrectReverse.value[v.trim()] = k;
-      });
+      for (const vsplit of vs) {
+        const v = vsplit.trim();
+        if (v === "") continue;
+        autoCorrectReverse.value[v] = k;
+      }
     });
   },
   {
@@ -124,7 +130,7 @@ const processVideo = async (videoPath: string) => {
 
   const c = child_process.spawn(
     ".\\gpq.exe",
-    ["--subprocess=true", "--video=" + videoPath],
+    ["--subprocess=true", `--video="${videoPath}"`],
     {
       cwd: process.cwd() + path.sep + "gpq",
       shell: "powershell",
