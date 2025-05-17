@@ -300,6 +300,19 @@ const updateAutocorrect = (k: string, v: string) => {
   }
   autoCorrect.value[k] = v;
 };
+
+const applyAllAutoCorrects = () => {
+  let old = resultsStr.value;
+  Object.entries(autoCorrectReverse.value).forEach(([bad, fixedCommaRaw]) => {
+    const allFixed = fixedCommaRaw.split(",");
+    for (const fixed of allFixed) {
+      const vFixed = fixed.trim();
+      if (vFixed === "") continue;
+      old = old.replace(`"${bad}"`, `"${vFixed}"`);
+    }
+  });
+  resultsStr.value = old;
+};
 </script>
 
 <template>
@@ -345,6 +358,14 @@ ${members.length} member(s)`"
           "
         >
           {{ showMembersListUI ? "Hide" : "Show" }} members list
+        </button>
+        <br />
+        <button
+          v-if="showMembersListUI"
+          style="margin-top: 1em"
+          @click="applyAllAutoCorrects"
+        >
+          Apply all auto-corrects
         </button>
         <div
           v-if="showMembersListUI"
