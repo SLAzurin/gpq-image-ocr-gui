@@ -1,6 +1,6 @@
 {
   "name": "gpq-image-ocr-gui",
-  "version": "1.4.7",
+  "version": "1.5.0",
   "description": "Maplestory GPQ score screenshots to JSON",
   "main": "dist-electron/main/index.js",
   "repository": {

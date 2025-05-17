@@ -15,6 +15,19 @@ try {
   // dont do anything, just leave it []
 }
 
+const autoCorrect = ref<Record<string, string>>({});
+try {
+  const storageAutocorrect = localStorage.getItem("autocorrect");
+  if (storageAutocorrect) autoCorrect.value = JSON.parse(storageAutocorrect);
+} catch (e: unknown) {
+  // dont do anything, just leave it {}
+}
+
+const autoCorrectReverse = ref<Record<string, string>>({});
+Object.entries(autoCorrect.value).forEach(([k, v]) => {
+  autoCorrectReverse.value[v] = k;
+});
+
 const missingMembers = ref<string[]>([]);
 const resultsStr = ref("{\n\n}");
 const resultsStrIsValid = ref(true);
@@ -33,6 +46,23 @@ watch(members, async (newV) => {
   });
   missingMembers.value = newMissingMembers;
 });
+
+watch(
+  autoCorrect,
+  async (newV) => {
+    // save storage
+    localStorage.setItem("autocorrect", JSON.stringify(newV));
+
+    // update reverse
+    autoCorrectReverse.value = {};
+    Object.entries(newV).forEach(([k, v]) => {
+      autoCorrectReverse.value[v] = k;
+    });
+  },
+  {
+    deep: true,
+  }
+);
 
 watch(resultsStr, async (newV) => {
   // always scroll results to bottom when new value is set
@@ -113,6 +143,10 @@ const processVideo = async (videoPath: string) => {
       const o = JSON.parse(stdout);
       const o2 = JSON.parse(resultsStr.value);
       Object.entries<number>(o).forEach(([k, v]) => {
+        // apply autocorrect
+        if (autoCorrectReverse.value[k]) {
+          k = autoCorrectReverse.value[k];
+        }
         o2[k] = v;
       });
       resultsStr.value = JSON.stringify(o2, null, 4);
@@ -164,6 +198,10 @@ const processImages = async (base64image: string) => {
       const o = JSON.parse(stdout);
       const o2 = JSON.parse(resultsStr.value);
       Object.entries<number>(o).forEach(([k, v]) => {
+        // apply autocorrect
+        if (autoCorrectReverse.value[k]) {
+          k = autoCorrectReverse.value[k];
+        }
         o2[k] = v;
       });
       resultsStr.value = JSON.stringify(o2, null, 4);
@@ -200,6 +238,16 @@ const pasteContent = (e: ClipboardEvent) => {
         localStorage.setItem("members", JSON.stringify(m));
         statusStr.value = `Successfully imported ${m.length} member(s)`;
         statusType.value = "alert-success";
+
+        // Update autocorrect
+        const oldAutoCorrect = autoCorrect;
+        const newAutoCorrect: Record<string, string> = {};
+        Object.entries(oldAutoCorrect).forEach(([k, v]) => {
+          if (m.includes(k)) {
+            newAutoCorrect[k] = v;
+          }
+        });
+        autoCorrect.value = newAutoCorrect;
       } catch (e: unknown) {
         statusStr.value = "Failed to update members list";
         statusType.value = "alert-error";
@@ -223,6 +271,24 @@ const copyResultsToClipboard = () => {
   } catch (err) {
     alert("Failed to copy resultsStr to clipboard");
   }
+};
+
+const copyValueToClipboard = (v: string) => {
+  try {
+    navigator.clipboard.writeText(v);
+    statusStr.value = `Copied '${v}' to clipboard!`;
+    statusType.value = "alert-success";
+  } catch (err) {
+    alert("Failed to copy resultsStr to clipboard");
+  }
+};
+
+const updateAutocorrect = (k: string, v: string) => {
+  if (v === "") {
+    delete autoCorrect.value[k];
+    return;
+  }
+  autoCorrect.value[k] = v;
 };
 </script>
 
@@ -249,7 +315,7 @@ const copyResultsToClipboard = () => {
           id="paste-images"
           cols="40"
           rows="10"
-          :placeholder="`Paste members and images here
+          :placeholder="`Paste members and video/image here
 
 ${members.length} member(s)`"
           @paste="pasteContent"
@@ -272,11 +338,41 @@ ${members.length} member(s)`"
         </button>
         <div
           v-if="showMembersListUI"
-          style="overflow: hidden; overflow-y: scroll; max-height: 10vw"
+          style="overflow: hidden; overflow-y: scroll; max-height: 15vw"
         >
-          <div class="members-list-ui" v-for="m in members.sort()">
-            {{ m }}
-          </div>
+          <table>
+            <tbody>
+              <tr>
+                <th>(click to copy ign)</th>
+                <th>Auto-correct name<br />(comma separated for multiple)</th>
+              </tr>
+              <tr v-for="m in members.sort()">
+                <td>
+                  <div class="members-list-ui" style="text-align: left">
+                    <button
+                      style="font-size: 1rem; width: 90%; padding-right: 1em"
+                      @click="copyValueToClipboard(m)"
+                    >
+                      {{ m }}
+                    </button>
+                  </div>
+                </td>
+                <td>
+                  <input
+                    class="form-control"
+                    type="text"
+                    :value="autoCorrect[m]"
+                    @input="
+                      updateAutocorrect(
+                        m,
+                        (<HTMLInputElement>$event.target).value
+                      )
+                    "
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
       <div class="center">
