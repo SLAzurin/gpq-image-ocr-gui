@@ -250,7 +250,7 @@ const pasteContent = (e: ClipboardEvent) => {
         statusType.value = "alert-success";
 
         // Update autocorrect
-        const oldAutoCorrect = autoCorrect;
+        const oldAutoCorrect = autoCorrect.value;
         const newAutoCorrect: Record<string, string> = {};
         Object.entries(oldAutoCorrect).forEach(([k, v]) => {
           if (m.includes(k)) {
