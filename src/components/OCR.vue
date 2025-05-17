@@ -130,7 +130,7 @@ const processVideo = async (videoPath: string) => {
 
   const c = child_process.spawn(
     ".\\gpq.exe",
-    ["--subprocess=true", "--video=" + videoPath],
+    ["--subprocess=true", `--video="${videoPath}"`],
     {
       cwd: process.cwd() + path.sep + "gpq",
       shell: "powershell",
