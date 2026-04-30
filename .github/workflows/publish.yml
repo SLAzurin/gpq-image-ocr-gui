@@ -92,6 +92,7 @@ jobs:
           cache: "pnpm"
           cache-dependency-path: "pnpm-lock.yaml"
       - name: Install dependencies
+        shell: bash
         run: |
           pnpm i --frozen-lockfile
       - name: Restore electron cache
@@ -102,6 +103,7 @@ jobs:
           path: ./.cache
           key: ${{ runner.os }}-gpq-cli-electron-cache-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Build
+        shell: bash
         env:
           ELECTRON_CACHE: ./.cache/electron
           ELECTRON_BUILDER_CACHE: ./.cache/electron-builder
